@@ -1,0 +1,3 @@
+include ':cameraocr'
+include ':app'
+rootProject.name = "CameraOcr"

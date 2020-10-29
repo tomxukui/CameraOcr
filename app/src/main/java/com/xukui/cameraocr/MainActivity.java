@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
             PermissionUtil.requestPermission(this, data -> {
                 Intent intent = new Intent(MainActivity.this, IdcardOcrActivity.class);
                 startActivity(intent);
-            }, Permission.Group.CAMERA);
+            }, new String[]{Permission.CAMERA});
         });
 
         findViewById(R.id.faceOcr_btn).setOnClickListener(v -> {

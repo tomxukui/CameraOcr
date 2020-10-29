@@ -29,6 +29,7 @@ dependencies {
     //demo必需
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.ext.dependencies["constraintlayout"]
+    implementation 'com.yanzhenjie:permission:2.0.3'
 
     //sdk必需
     implementation project(':cameraocr')

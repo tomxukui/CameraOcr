@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+
+import com.xukui.cameraocr.utils.permission.PermissionUtil;
+import com.yanzhenjie.permission.runtime.Permission;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,19 +15,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.idcardOcr_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        findViewById(R.id.idcardOcr_btn).setOnClickListener(v -> {
+            PermissionUtil.requestPermission(this, data -> {
                 Intent intent = new Intent(MainActivity.this, IdcardOcrActivity.class);
                 startActivity(intent);
-            }
+            }, Permission.Group.CAMERA);
         });
 
-        findViewById(R.id.faceOcr_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
+        findViewById(R.id.faceOcr_btn).setOnClickListener(v -> {
         });
     }
 

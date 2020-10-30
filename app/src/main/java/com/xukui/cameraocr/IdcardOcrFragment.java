@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -332,9 +333,15 @@ public class IdcardOcrFragment extends Fragment {
                 .setTargetRotation(rotation)
                 .build();
         mImageAnalysis.setAnalyzer(mCameraExecutor, new LuminosityAnalyzer(new AnalysisCallBack() {
+
             @Override
-            public void onAnalysis(int luma) {
+            public void onAnalysis(int luma, double framesPerSecond, long timestamp) {
+                Log.e("ddddd", "------相机分析------");
+                Log.e("ddddd", "luma: " + luma);
+                Log.e("ddddd", "framesPerSecond: " + framesPerSecond);
+                Log.e("ddddd", "timestamp: " + timestamp);
             }
+
         }));
 
         mCameraProvider.unbindAll();
@@ -407,7 +414,7 @@ public class IdcardOcrFragment extends Fragment {
             int luma = pixels / data.length;
 
             for (AnalysisCallBack callBack : listeners) {
-                callBack.onAnalysis(luma);
+                callBack.onAnalysis(luma, framesPerSecond, lastAnalyzedTimestamp);
             }
 
             image.close();
@@ -422,7 +429,7 @@ public class IdcardOcrFragment extends Fragment {
     }
 
     public interface AnalysisCallBack {
-        void onAnalysis(int luma);
+        void onAnalysis(int luma, double framesPerSecond, long timestamp);
     }
 
     private final DisplayManager.DisplayListener mDisplayListener = new DisplayManager.DisplayListener() {

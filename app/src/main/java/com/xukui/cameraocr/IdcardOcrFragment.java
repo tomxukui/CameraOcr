@@ -278,7 +278,6 @@ public class IdcardOcrFragment extends Fragment {
             }
 
             updateCameraSwitchButton();
-
             bindCameraUseCases();
         }, ContextCompat.getMainExecutor(requireContext()));
     }

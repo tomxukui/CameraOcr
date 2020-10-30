@@ -2,6 +2,7 @@ package com.xukui.cameraocr;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -149,12 +150,43 @@ public class IdcardOcrFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mImageCapture != null && mCameraExecutor != null) {
+//                    存文件拍摄
+//                    ImageCapture.Metadata metadata = new ImageCapture.Metadata();
+//                    metadata.setReversedHorizontal(mLensFacing == CameraSelector.LENS_FACING_FRONT);
+//
+//                    File outputFile = new File(mOutputDirectory, "CameraX_" + System.currentTimeMillis() + ".jpg");
+//
+//                    ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(outputFile)
+//                            .setMetadata(metadata)
+//                            .build();
+//
+//                    mImageCapture.takePicture(outputFileOptions, mCameraExecutor, new ImageCapture.OnImageSavedCallback() {
+//
+//                        @Override
+//                        public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+//                            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(".jpg");
+//                            MediaScannerConnection.scanFile(getContext(), new String[]{outputFile.getAbsolutePath()}, new String[]{mimeType}, null);
+//
+//                            Log.e("dddddd", "拍照成功:" + outputFile.getAbsolutePath());
+//                        }
+//
+//                        @Override
+//                        public void onError(@NonNull ImageCaptureException exception) {
+//                            Log.e("dddddd", "拍照失败", exception);
+//                        }
+//
+//                    });
+
+//                    不存文件拍摄
                     mImageCapture.takePicture(mCameraExecutor, new ImageCapture.OnImageCapturedCallback() {
 
                         @Override
                         public void onCaptureSuccess(@NonNull ImageProxy image) {
                             super.onCaptureSuccess(image);
                             Log.e("dddddd", "拍照成功");
+                            Log.e("dddddd", "宽高:" + image.getWidth() + ", " + image.getHeight());
+                            Rect cropRect = image.getCropRect();
+                            Log.e("dddddd", "cropRect: " + cropRect);
                         }
 
                         @Override

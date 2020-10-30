@@ -29,6 +29,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -122,6 +123,15 @@ public class IdcardOcrFragment extends Fragment {
     }
 
     private void setView() {
+        mCameraPreview.post(() -> {
+            mDisplayId = mCameraPreview.getDisplay().getDisplayId();
+
+            updateCameraUi();
+            setUpCamera();
+        });
+    }
+
+    private void updateCameraUi() {
         mCameraSwitchButton.setEnabled(false);
         mCameraSwitchButton.setOnClickListener(v -> {
             if (mLensFacing == CameraSelector.LENS_FACING_FRONT) {
@@ -134,16 +144,30 @@ public class IdcardOcrFragment extends Fragment {
             bindCameraUseCases();
         });
 
-        mCameraPreview.post(() -> {
-            mDisplayId = mCameraPreview.getDisplay().getDisplayId();
+        mCameraCaptureButton.setOnClickListener(new View.OnClickListener() {
 
-            updateCameraUi();
-            setUpCamera();
+            @Override
+            public void onClick(View v) {
+                if (mImageCapture != null && mCameraExecutor != null) {
+                    mImageCapture.takePicture(mCameraExecutor, new ImageCapture.OnImageCapturedCallback() {
+
+                        @Override
+                        public void onCaptureSuccess(@NonNull ImageProxy image) {
+                            super.onCaptureSuccess(image);
+                            Log.e("dddddd", "拍照成功");
+                        }
+
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            super.onError(exception);
+                            //连续拍摄期间切换镜头, 可能会报异常, 不过不会崩溃, 因为已经拦截并且是正常现象, 所以不需要提示
+                        }
+
+                    });
+                }
+            }
+
         });
-    }
-
-    private void updateCameraUi() {
-
 
 //
 //        // In the background, load latest photo taken (if any) for gallery thumbnail

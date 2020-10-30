@@ -122,6 +122,18 @@ public class IdcardOcrFragment extends Fragment {
     }
 
     private void setView() {
+        mCameraSwitchButton.setEnabled(false);
+        mCameraSwitchButton.setOnClickListener(v -> {
+            if (mLensFacing == CameraSelector.LENS_FACING_FRONT) {
+                mLensFacing = CameraSelector.LENS_FACING_BACK;
+
+            } else {
+                mLensFacing = CameraSelector.LENS_FACING_FRONT;
+            }
+
+            bindCameraUseCases();
+        });
+
         mCameraPreview.post(() -> {
             mDisplayId = mCameraPreview.getDisplay().getDisplayId();
 
@@ -132,13 +144,7 @@ public class IdcardOcrFragment extends Fragment {
 
     private void updateCameraUi() {
 
-//        // Remove previous UI if any
-//        container.findViewById<ConstraintLayout> (R.id.camera_ui_container) ?.let {
-//            container.removeView(it)
-//        }
-//
-//        // Inflate a new view containing all UI for controlling the camera
-//        val controls = View.inflate(requireContext(), R.layout.camera_ui_container, container)
+
 //
 //        // In the background, load latest photo taken (if any) for gallery thumbnail
 //        lifecycleScope.launch(Dispatchers.IO) {
@@ -226,23 +232,7 @@ public class IdcardOcrFragment extends Fragment {
 //            }
 //        }
 //
-//        // Setup for button used to switch cameras
-//        controls.findViewById<ImageButton> (R.id.camera_switch_button).let {
-//
-//            // Disable the button until the camera is set up
-//            it.isEnabled = false
-//
-//            // Listener for button used to switch cameras. Only called if the button is enabled
-//            it.setOnClickListener {
-//                lensFacing = if (CameraSelector.LENS_FACING_FRONT == lensFacing) {
-//                    CameraSelector.LENS_FACING_BACK
-//                } else {
-//                    CameraSelector.LENS_FACING_FRONT
-//                }
-//                // Re-bind use cases to update selected camera
-//                bindCameraUseCases()
-//            }
-//        }
+
 //
 //        // Listener for button used to view the most recent photo
 //        controls.findViewById<ImageButton> (R.id.photo_view_button).setOnClickListener {

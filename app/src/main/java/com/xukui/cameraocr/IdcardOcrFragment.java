@@ -2,16 +2,19 @@ package com.xukui.cameraocr;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -49,6 +52,7 @@ public class IdcardOcrFragment extends Fragment {
     private ImageButton mCameraSwitchButton;
     private ImageButton mCameraCaptureButton;
     private ImageButton mCameraPhotoButton;
+    private ImageView mPhotoImageView;
 
     private ExecutorService mCameraExecutor;
     private DisplayManager mDisplayManager;
@@ -61,6 +65,7 @@ public class IdcardOcrFragment extends Fragment {
     private int mDisplayId = -1;
     private int mLensFacing = CameraSelector.LENS_FACING_BACK;
     private File mOutputDirectory;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,6 +121,7 @@ public class IdcardOcrFragment extends Fragment {
         mCameraSwitchButton = view.findViewById(R.id.camera_switch_button);
         mCameraCaptureButton = view.findViewById(R.id.camera_capture_button);
         mCameraPhotoButton = view.findViewById(R.id.camera_photo_button);
+        mPhotoImageView = view.findViewById(R.id.photo_imageView);
 
         mCameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -182,11 +188,27 @@ public class IdcardOcrFragment extends Fragment {
 
                         @Override
                         public void onCaptureSuccess(@NonNull ImageProxy image) {
+                            ImageProxy.PlaneProxy[] planeProxies = image.getPlanes();
+                            ImageProxy.PlaneProxy planeProxy = planeProxies[0];
+                            ByteBuffer byteBuffer = planeProxy.getBuffer();
+                            byte[] bytes = new byte[byteBuffer.remaining()];
+                            byteBuffer.get(bytes);
                             super.onCaptureSuccess(image);
                             Log.e("dddddd", "拍照成功");
                             Log.e("dddddd", "宽高:" + image.getWidth() + ", " + image.getHeight());
-                            Rect cropRect = image.getCropRect();
-                            Log.e("dddddd", "cropRect: " + cropRect);
+
+                            mHandler.post(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (mPhotoImageView != null) {
+                                        Glide.with(requireContext())
+                                                .load(bytes)
+                                                .into(mPhotoImageView);
+                                    }
+                                }
+
+                            });
                         }
 
                         @Override

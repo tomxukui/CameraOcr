@@ -30,6 +30,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.ext.dependencies["constraintlayout"]
     implementation 'com.yanzhenjie:permission:2.0.3'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
 
     //sdk必需
     implementation project(':cameraocr')

@@ -196,7 +196,7 @@ public class IdcardOcrFragment extends Fragment {
                             byteBuffer.get(bytes);
                             super.onCaptureSuccess(image);
                             Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
-                            Log.e("dddddd", "宽高:" + image.getWidth() + ", " + image.getHeight());
+                            Log.e("dddddd", "宽高角度:" + image.getWidth() + ", " + image.getHeight() + ", " + image.getImageInfo().getRotationDegrees());
 
                             mHandler.post(new Runnable() {
 

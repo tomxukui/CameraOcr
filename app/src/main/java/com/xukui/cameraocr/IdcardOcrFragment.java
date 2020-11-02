@@ -1,7 +1,9 @@
 package com.xukui.cameraocr;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.xukui.cameraocr.utils.YuvToRgbConverter;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -187,16 +190,21 @@ public class IdcardOcrFragment extends Fragment {
 //                    不存文件拍摄
                     mImageCapture.takePicture(mCameraExecutor, new ImageCapture.OnImageCapturedCallback() {
 
+                        private YuvToRgbConverter converter;
+                        private Bitmap outputBitmap;
+
+                        @SuppressLint("UnsafeExperimentalUsageError")
                         @Override
                         public void onCaptureSuccess(@NonNull ImageProxy image) {
-                            ImageProxy.PlaneProxy[] planeProxies = image.getPlanes();
-                            ImageProxy.PlaneProxy planeProxy = planeProxies[0];
-                            ByteBuffer byteBuffer = planeProxy.getBuffer();
-                            byte[] bytes = new byte[byteBuffer.remaining()];
-                            byteBuffer.get(bytes);
-                            super.onCaptureSuccess(image);
-                            Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
-                            Log.e("dddddd", "宽高角度:" + image.getWidth() + ", " + image.getHeight() + ", " + image.getImageInfo().getRotationDegrees());
+                            if(converter == null) {
+                                converter = new YuvToRgbConverter(requireContext());
+                            }
+
+                            if(outputBitmap == null) {
+                                outputBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.RGB_565);
+                            }
+
+                            converter.yuvToRgb(image.getImage(), outputBitmap);
 
                             mHandler.post(new Runnable() {
 
@@ -204,12 +212,35 @@ public class IdcardOcrFragment extends Fragment {
                                 public void run() {
                                     if (mPhotoImageView != null) {
                                         Glide.with(requireContext())
-                                                .load(bytes)
+                                                .load(outputBitmap)
                                                 .into(mPhotoImageView);
                                     }
                                 }
 
                             });
+
+
+//                            ImageProxy.PlaneProxy[] planeProxies = image.getPlanes();
+//                            ImageProxy.PlaneProxy planeProxy = planeProxies[0];
+//                            ByteBuffer byteBuffer = planeProxy.getBuffer();
+//                            byte[] bytes = new byte[byteBuffer.remaining()];
+//                            byteBuffer.get(bytes);
+//                            super.onCaptureSuccess(image);
+//                            Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
+//                            Log.e("dddddd", "宽高角度:" + image.getWidth() + ", " + image.getHeight() + ", " + image.getImageInfo().getRotationDegrees());
+//
+//                            mHandler.post(new Runnable() {
+//
+//                                @Override
+//                                public void run() {
+//                                    if (mPhotoImageView != null) {
+//                                        Glide.with(requireContext())
+//                                                .load(bytes)
+//                                                .into(mPhotoImageView);
+//                                    }
+//                                }
+//
+//                            });
                         }
 
                         @Override

@@ -3,7 +3,6 @@ package com.xukui.cameraocr;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.xukui.cameraocr.utils.YuvToRgbConverter;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -190,44 +188,47 @@ public class IdcardOcrFragment extends Fragment {
 //                    不存文件拍摄
                     mImageCapture.takePicture(mCameraExecutor, new ImageCapture.OnImageCapturedCallback() {
 
-                        private YuvToRgbConverter converter;
-                        private Bitmap outputBitmap;
+                        private byte[] getJpegBytes(ImageProxy.PlaneProxy planeProxy) {
+                            ByteBuffer byteBuffer = planeProxy.getBuffer();
+                            byte[] bytes = new byte[byteBuffer.remaining()];
+                            byteBuffer.get(bytes);
+                            return bytes;
+                        }
 
-                        @SuppressLint("UnsafeExperimentalUsageError")
                         @Override
                         public void onCaptureSuccess(@NonNull ImageProxy image) {
-                            if(converter == null) {
-                                converter = new YuvToRgbConverter(requireContext());
-                            }
+                            ImageProxy.PlaneProxy[] planeProxies = image.getPlanes();
+                            ImageProxy.PlaneProxy planeProxy = planeProxies[0];
+                            byte[] bytes = getJpegBytes(planeProxy);
+                            super.onCaptureSuccess(image);
+                            Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
+                            Log.e("dddddd", "宽高角度:" + image.getWidth() + ", " + image.getHeight() + ", " + image.getImageInfo().getRotationDegrees());
 
-                            if(outputBitmap == null) {
-                                outputBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.RGB_565);
-                            }
-
-                            converter.yuvToRgb(image.getImage(), outputBitmap);
-
-                            mHandler.post(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    if (mPhotoImageView != null) {
-                                        Glide.with(requireContext())
-                                                .load(outputBitmap)
-                                                .into(mPhotoImageView);
-                                    }
+                            mHandler.post(() -> {
+                                if (mPhotoImageView != null) {
+                                    Glide.with(requireContext())
+                                            .load(bytes)
+                                            .into(mPhotoImageView);
                                 }
-
                             });
+                        }
 
-
-//                            ImageProxy.PlaneProxy[] planeProxies = image.getPlanes();
-//                            ImageProxy.PlaneProxy planeProxy = planeProxies[0];
-//                            ByteBuffer byteBuffer = planeProxy.getBuffer();
-//                            byte[] bytes = new byte[byteBuffer.remaining()];
-//                            byteBuffer.get(bytes);
+//                        private YuvToRgbConverter converter;
+//                        private Bitmap outputBitmap;
+//
+//                        @SuppressLint("UnsafeExperimentalUsageError")
+//                        @Override
+//                        public void onCaptureSuccess2(@NonNull ImageProxy image) {
+//                            if (converter == null) {
+//                                converter = new YuvToRgbConverter(requireContext());
+//                            }
+//
+//                            if (outputBitmap == null) {
+//                                outputBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.RGB_565);
+//                            }
+//
+//                            converter.yuvToRgb(image.getImage(), outputBitmap);
 //                            super.onCaptureSuccess(image);
-//                            Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
-//                            Log.e("dddddd", "宽高角度:" + image.getWidth() + ", " + image.getHeight() + ", " + image.getImageInfo().getRotationDegrees());
 //
 //                            mHandler.post(new Runnable() {
 //
@@ -235,13 +236,13 @@ public class IdcardOcrFragment extends Fragment {
 //                                public void run() {
 //                                    if (mPhotoImageView != null) {
 //                                        Glide.with(requireContext())
-//                                                .load(bytes)
+//                                                .load(outputBitmap)
 //                                                .into(mPhotoImageView);
 //                                    }
 //                                }
 //
 //                            });
-                        }
+//                        }
 
                         @Override
                         public void onError(@NonNull ImageCaptureException exception) {
@@ -404,6 +405,7 @@ public class IdcardOcrFragment extends Fragment {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void bindCameraUseCases() throws IllegalStateException {
         DisplayMetrics metrics = new DisplayMetrics();
         mCameraPreview.getDisplay().getRealMetrics(metrics);
@@ -424,7 +426,6 @@ public class IdcardOcrFragment extends Fragment {
         mImageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-//                .setTargetAspectRatio(screenAspectRatio)
                 .setTargetRotation(rotation)
                 .setTargetResolution(new Size(720, 1280))
                 .build();
@@ -437,10 +438,10 @@ public class IdcardOcrFragment extends Fragment {
 
             @Override
             public void onAnalysis(int luma, double framesPerSecond, long timestamp) {
-                Log.e("ddddd", "------相机分析------");
-                Log.e("ddddd", "luma: " + luma);
-                Log.e("ddddd", "framesPerSecond: " + framesPerSecond);
-                Log.e("ddddd", "timestamp: " + timestamp);
+//                Log.e("ddddd", "------相机分析------");
+//                Log.e("ddddd", "luma: " + luma);
+//                Log.e("ddddd", "framesPerSecond: " + framesPerSecond);
+//                Log.e("ddddd", "timestamp: " + timestamp);
             }
 
         }));

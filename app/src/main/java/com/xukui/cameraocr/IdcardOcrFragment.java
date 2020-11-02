@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -194,7 +195,7 @@ public class IdcardOcrFragment extends Fragment {
                             byte[] bytes = new byte[byteBuffer.remaining()];
                             byteBuffer.get(bytes);
                             super.onCaptureSuccess(image);
-                            Log.e("dddddd", "拍照成功");
+                            Log.e("dddddd", "拍照成功, 大小:" + (bytes.length / 1024f) + "kb");
                             Log.e("dddddd", "宽高:" + image.getWidth() + ", " + image.getHeight());
 
                             mHandler.post(new Runnable() {
@@ -392,8 +393,9 @@ public class IdcardOcrFragment extends Fragment {
         mImageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .setTargetAspectRatio(screenAspectRatio)
+//                .setTargetAspectRatio(screenAspectRatio)
                 .setTargetRotation(rotation)
+                .setTargetResolution(new Size(720, 1280))
                 .build();
 
         mImageAnalysis = new ImageAnalysis.Builder()
